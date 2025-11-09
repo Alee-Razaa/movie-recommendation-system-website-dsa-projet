@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="Movie Recommendation System using Data Structures - DSA Project">
+    <meta name="theme-color" content="#667eea">
+    <title>Movie Recommendation System - DSA Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Smooth animations */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .movie-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .movie-card:hover, .movie-card:active {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        /* Mobile-friendly touch feedback */
+        @media (max-width: 768px) {
+            .movie-card:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .genre-badge {
+            transition: all 0.2s ease;
+        }
+        
+        .genre-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Responsive text */
+        @media (max-width: 640px) {
+            .nav-text {
+                display: none;
+            }
+        }
+        
+        /* Better modal on mobile */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95% !important;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+        
+        /* Improved touch targets */
+        button, a, select, input {
+            min-height: 44px;
+        }
+        
+        /* Safe area for notched devices */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(0px, env(safe-area-inset-left));
+                padding-right: max(0px, env(safe-area-inset-right));
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <i class="fas fa-film text-2xl sm:text-3xl"></i>
+                    <h1 class="text-lg sm:text-2xl font-bold">MovieHub DSA</h1>
+                    <span class="hidden sm:inline-block text-xs sm:text-sm bg-white/20 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">Data Structures Project</span>
+                </div>
+                <nav class="flex space-x-2 sm:space-x-4 md:space-x-6">
+                    <a href="index.html" class="bg-white/30 px-2 sm:px-4 py-2 rounded-lg flex items-center font-medium text-sm sm:text-base">
+                        <i class="fas fa-home mr-0 sm:mr-2"></i><span class="nav-text">Home</span>
+                    </a>
+                    <a href="liked.html" class="hover:bg-white/20 px-2 sm:px-4 py-2 rounded-lg transition flex items-center text-sm sm:text-base">
+                        <i class="fas fa-heart mr-0 sm:mr-2"></i><span class="nav-text">Liked</span> <span id="likedCount" class="ml-1 sm:ml-2 bg-red-500 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs">0</span>
+                    </a>
+                    <a href="history.html" class="hover:bg-white/20 px-2 sm:px-4 py-2 rounded-lg transition flex items-center text-sm sm:text-base">
+                        <i class="fas fa-history mr-0 sm:mr-2"></i><span class="nav-text">History</span> <span id="historyCount" class="ml-1 sm:ml-2 bg-yellow-500 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs">0</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-3 sm:px-6 py-4 sm:py-8 max-w-7xl">
+        <!-- Search and Filter Section -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+            <h2 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <span class="flex items-center">
+                    <i class="fas fa-search mr-2 sm:mr-3 text-purple-400"></i>
+                    Search & Filter
+                </span>
+                <span class="text-xs bg-green-500 px-2 sm:px-3 py-1 rounded-full">Binary Search</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs sm:text-sm mb-2 text-gray-400">Search by Title</label>
+                    <input type="text" id="searchInput" 
+                           class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+                           placeholder="Enter movie title...">
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm mb-2 text-gray-400">Filter by Genre</label>
+                    <select id="genreFilter" 
+                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base">
+                        <option value="">All Genres</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Movies Section -->
+        <div id="allMovies" class="bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+                <h2 class="text-xl sm:text-2xl font-bold flex flex-wrap items-center gap-2">
+                    <i class="fas fa-film mr-2 sm:mr-3 text-blue-400"></i>
+                    <span id="allMoviesTitle">All Movies</span>
+                    <span class="text-xs bg-blue-500 px-2 sm:px-3 py-1 rounded-full">Array Storage</span>
+                </h2>
+                
+                <!-- Sort Dropdown -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <label class="text-gray-400 text-xs sm:text-sm">Sort:</label>
+                    <select id="sortDropdown" class="flex-1 sm:flex-initial bg-gray-700 text-white px-3 sm:px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-600 transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 text-xs sm:text-sm">
+                        <option value="default">Default</option>
+                        <option value="priority">🔥 Most Popular</option>
+                    </select>
+                </div>
+            </div>
+            <div id="moviesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+                <!-- Movies will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Trending Movies Section -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+            <h2 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <span class="flex items-center">
+                    <i class="fas fa-fire mr-2 sm:mr-3 text-orange-400"></i>
+                    Trending Now
+                </span>
+                <span class="text-xs bg-orange-500 px-2 sm:px-3 py-1 rounded-full">Max Heap / Priority Queue</span>
+            </h2>
+            <div id="trendingContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                <!-- Trending movies will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Related Movies Section -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6" id="relatedSection" style="display: none;">
+            <h2 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <span class="flex items-center">
+                    <i class="fas fa-project-diagram mr-2 sm:mr-3 text-green-400"></i>
+                    Related Movies
+                </span>
+                <span class="text-xs bg-green-500 px-2 sm:px-3 py-1 rounded-full">Graph Traversal (BFS)</span>
+            </h2>
+            <div id="relatedContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                <!-- Related movies will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Detail Modal -->
+    <div id="movieModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-3 sm:p-4">
+        <div class="modal-content bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-4 sm:p-6">
+                <div class="flex justify-between items-start mb-3 sm:mb-4">
+                    <h2 id="modalTitle" class="text-xl sm:text-2xl md:text-3xl font-bold pr-4"></h2>
+                    <button id="closeModal" class="text-gray-400 hover:text-white text-xl sm:text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modalContent" class="space-y-3 sm:space-y-4 text-sm sm:text-base">
+                    <!-- Modal content will be loaded here -->
+                </div>
+                <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <button id="watchBtn" class="flex-1 bg-purple-600 hover:bg-purple-700 px-4 sm:px-6 py-3 rounded-lg font-semibold transition text-sm sm:text-base">
+                        <i class="fas fa-play mr-2"></i>Watch Now
+                    </button>
+                    <button id="likeBtn" class="flex-1 bg-red-600 hover:bg-red-700 px-4 sm:px-6 py-3 rounded-lg font-semibold transition text-sm sm:text-base">
+                        <i class="fas fa-heart mr-2"></i>Like
+                    </button>
+                    <button id="showRelatedBtn" class="flex-1 bg-green-600 hover:bg-green-700 px-4 sm:px-6 py-3 rounded-lg font-semibold transition text-sm sm:text-base">
+                        <i class="fas fa-project-diagram mr-2"></i>Show Related
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load app.js as ES6 module -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>

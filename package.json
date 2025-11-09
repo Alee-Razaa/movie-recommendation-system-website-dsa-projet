@@ -1,0 +1,26 @@
+{
+  "name": "moviehub-dsa",
+  "version": "1.0.0",
+  "description": "Movie Recommendation System - Data Structures & Algorithms Project",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx live-server --port=5500 --entry-file=index.html",
+    "preview": "npx live-server --port=8080 --entry-file=index.html"
+  },
+  "keywords": [
+    "dsa",
+    "data-structures",
+    "algorithms",
+    "movie-recommendation",
+    "heap",
+    "stack",
+    "graph",
+    "binary-search"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/moviehub-dsa"
+  }
+}
